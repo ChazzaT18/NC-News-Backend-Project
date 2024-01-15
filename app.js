@@ -18,7 +18,7 @@ app.use((err, req, res, next) => {
   })
 
   app.use((err, req, res, next) => {
-    if (err.msg === 'Bad request'){
+    if (err.msg === 'Bad request' || err.msg === 'article_id must be a number'){
       res.status(400).send({msg: err.msg})
     }
   })

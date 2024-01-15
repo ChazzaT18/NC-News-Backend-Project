@@ -2,7 +2,7 @@ const db = require("../db/connection");
 
 const fetchArticleById = (articleId) => {
     if (isNaN(articleId)) {
-      return Promise.reject({ msg: "Bad request" });
+      return Promise.reject({ msg: "article_id must be a number" });
     }
     return db
       .query(`SELECT * FROM articles WHERE article_id = $1;`, [articleId])
@@ -11,7 +11,7 @@ const fetchArticleById = (articleId) => {
         if (articles.length === 0) {
           return Promise.reject({ msg: "Not found" });
         }
-        return articles;
+        return {article: articles[0]};
       });
   };
 
