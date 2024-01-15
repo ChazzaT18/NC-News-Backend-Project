@@ -1,3 +1,9 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
+To be able to run this repo locally, you must create the following files in the root directory:
+
+.env.test with the content 'PGDATABASE=<database_name_test>' (do you not write in the quotes)
+
+.env.development with the content 'PGDATABASE=<DATABASE_NAME>' (do you not write in the quotes)
+
+Add these files to your .gitignore to keep sensitive information secure.
