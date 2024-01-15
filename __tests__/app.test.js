@@ -41,7 +41,7 @@ describe("GET/api", () => {
     return request(app)
       .get("/api")
       .then((response) => {
-        const endPoints = response.body.endPoint;
+        const endPoints = response.body.endPoints;
         expect(response.status).toBe(200);
         expect(typeof endPoints).toEqual("object");
       });
@@ -50,7 +50,7 @@ describe("GET/api", () => {
     return request(app)
       .get("/api")
       .then((response) => {
-        const endPoints = response.body.endPoint;
+        const endPoints = response.body.endPoints;
         expect(response.status).toBe(200);
         expect(endPoints).toEqual(endPointData);
       });
