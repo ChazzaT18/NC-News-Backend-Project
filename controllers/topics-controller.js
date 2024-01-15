@@ -1,4 +1,4 @@
-const { fetchTopics, fetchEndPoints } = require('../models/topics-model')
+const { fetchTopics, fetchEndPoints, fetchArticleById } = require('../models/topics-model')
 
 const getTopics = ((request, response) => {
     fetchTopics().then((topic) => {
@@ -8,8 +8,18 @@ const getTopics = ((request, response) => {
 
 const getEndPoints = (request, response) => {
     const endPoint = fetchEndPoints();
-    console.log(endPoint);
     response.status(200).send({ endPoint });
   };
 
-module.exports = { getTopics, getEndPoints };
+const getArticleById = (request, response, next) => {
+    const articleId = Number(request.params.article_id)
+    fetchArticleById(articleId).then((article) => {
+        console.log(article)
+        response.status(200).send({article})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+module.exports = { getTopics, getEndPoints, getArticleById};
