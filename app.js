@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express()
-app.use(express.json())
-const { getTopics } = require('./controllers/topics-controller')
+const { getTopics, getEndPoints } = require('./controllers/topics-controller')
 
 app.get("/api/topics", getTopics);
+console.log(getEndPoints)
+app.get("/api", getEndPoints);
 
 module.exports = app
