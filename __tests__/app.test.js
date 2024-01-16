@@ -72,7 +72,7 @@ describe("GET/api/articles/:article_id", () => {
       .then((response) => {
         const article = response.body.article;
         expect(response.status).toBe(200);
-        expect(article[0]).toEqual({
+        expect(article).toEqual({ article: {
           article_id: 1,
           title: "Living in the shadow of a great man",
           topic: "mitch",
@@ -82,7 +82,7 @@ describe("GET/api/articles/:article_id", () => {
           votes: 100,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        });
+        }});
       });
   })
   test("returns status 404 when id number is not in the database", () => {
@@ -98,7 +98,7 @@ describe("GET/api/articles/:article_id", () => {
       .get("/api/articles/banana")
       .then((response) => {
         expect(response.status).toBe(400);
-        expect(response.body.msg).toBe("Bad request");
+        expect(response.body.msg).toBe("article_id must be a number");
       });
   });
   test("returns status 200 and an article object with correct properties", () => {
@@ -107,7 +107,7 @@ describe("GET/api/articles/:article_id", () => {
       .then((response) => {
         const article = response.body.article;
         expect(response.status).toBe(200);
-        expect(article[0]).toEqual(
+        expect(article).toEqual({ article:
           { article_id: 4,
             title: "Student SUES Mitch!",
             topic: "mitch",
@@ -117,7 +117,7 @@ describe("GET/api/articles/:article_id", () => {
             article_img_url:
               "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
               votes: 0
-          })
+          }})
       });
   })
 });
