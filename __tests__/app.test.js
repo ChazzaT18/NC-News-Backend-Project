@@ -137,8 +137,7 @@ describe("GET/api/articles/:article_id", () => {
           const articles = response.body.articles;
           expect(200);
           expect(Array.isArray(articles)).toEqual(true);
-          console.log(articles)
-          expect(articles.length > 0).toBe(true)
+          expect(articles.length > 0).toBe(true);
           articles.forEach((article) => {
             expect(typeof article.comment_count).toBe("number");
             expect(typeof article.votes).toBe("number");
@@ -156,7 +155,9 @@ describe("GET/api/articles/:article_id", () => {
       .get("/api/articles")
       .then((response) => {
         expect(200);
-        expect(response.body.articles).toBeSortedBy('created_at', {descending: true})
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
       });
   });
 });
@@ -184,13 +185,32 @@ describe("GET/api/articles/:article_id/comments", () => {
           expect(typeof comment.body).toBe("string");
         });
       });
+  });
+  test("Returned array is ordered by created_at and sorted by newest first", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .then((response) => {
+        expect(200);
+        expect(response.body.comments).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
     });
-    test("Returned array is ordered by created_at and sorted by newest first", () => {
+    test("returns status 404 when id number is not in the database", () => {
       return request(app)
-        .get("/api/articles/3/comments")
+        .get("/api/articles/10090/comments")
         .then((response) => {
-          expect(200);
-          expect(response.body.comments).toBeSortedBy('created_at', {descending: true})
+          expect(404);
+          console.log(response.body)
+          expect(response.body.msg).toEqual("Not found");
+        });
+    });
+    test("returns status 400 given an invalid article_id", () => {
+      return request(app)
+        .get("/api/articles/banana/comments")
+        .then((response) => {
+          expect(400);
+          expect(response.body.msg).toEqual("article_id must be a number");
         });
     });
 });
