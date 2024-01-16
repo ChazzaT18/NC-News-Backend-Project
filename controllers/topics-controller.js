@@ -1,4 +1,4 @@
-const { fetchTopics, fetchEndPoints } = require('../models/topics-model')
+const { fetchTopics } = require('../models/topics-model')
 
 const getTopics = ((request, response) => {
     fetchTopics().then((topic) => {
@@ -6,10 +6,4 @@ const getTopics = ((request, response) => {
       });
 })
 
-const getEndPoints = (request, response) => {
-    const endPoint = fetchEndPoints();
-    console.log(endPoint);
-    response.status(200).send({ endPoint });
-  };
-
-module.exports = { getTopics, getEndPoints };
+module.exports = { getTopics };
