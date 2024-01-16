@@ -75,7 +75,6 @@ const fetchCommentsByArticleId = (articleId) => {
 };
 
 const postComment = (articleId, username, body) => {
-  console.log(username)
   if (isNaN(articleId)) {
     return Promise.reject({
       statusCode: 400,
@@ -87,13 +86,13 @@ const postComment = (articleId, username, body) => {
       msg: "must have a username",
     });
   } else if (!body) {
-  return Promise.reject({
-    statusCode: 400,
-    msg: "must have a body",
-  });
-} 
+    return Promise.reject({
+      statusCode: 400,
+      msg: "must have a body",
+    });
+  }
 
-return fetchArticleById(articleId).then((article) => {
+  return fetchArticleById(articleId).then((article) => {
     if (article.length === 0) {
       return Promise.reject({ statusCode: 404, msg: "Not found" });
     }
@@ -104,8 +103,40 @@ return fetchArticleById(articleId).then((article) => {
         [articleId, username, body, new Date().toUTCString()]
       )
       .then((data) => {
-        const comment = data.rows[0]
+        const comment = data.rows[0];
         return comment;
+      });
+  });
+};
+
+const patchVotesInArticle = (articleId, votes) => {
+  if (isNaN(articleId)) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "article_id must be a number",
+    });
+  } else if (typeof votes !== "number") {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "inc_votes must be a number",
+    });
+  }
+
+  return fetchArticleById(articleId).then((article) => {
+    if (!article) {
+      return Promise.reject({ statusCode: 404, msg: "Article not found" });
+    }
+
+    const updatedVotes = article.article.votes + votes;
+
+    return db
+      .query(
+        "UPDATE articles SET votes = $1 WHERE article_id = $2 RETURNING *;",
+        [updatedVotes, articleId]
+      )
+      .then((data) => {
+        const article = data.rows[0];
+        return article ;
       });
   });
 };
@@ -115,4 +146,5 @@ module.exports = {
   fetchArticles,
   fetchCommentsByArticleId,
   postComment,
+  patchVotesInArticle,
 };
