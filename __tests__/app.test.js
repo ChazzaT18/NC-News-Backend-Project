@@ -13,6 +13,18 @@ beforeEach(() => {
   return seed(testData);
 });
 
+describe("GET/api", () => {
+  test("returns status 200 and an object", () => {
+    return request(app)
+      .get("/api")
+      .then((response) => {
+        const endPoints = response.body.endPoints;
+        expect(200);
+        expect(typeof endPoints).toEqual("object");
+      });
+  });
+})
+
 describe("GET/api/topics", () => {
   test("returns status 200 and an array", () => {
     return request(app)
@@ -116,35 +128,38 @@ describe("GET/api/articles/:article_id", () => {
         });
       });
   });
+  describe('GET/api/articles', () => {
+    test("returns 200 and an array of objects with the objects containing correct keys", () => {
+      return request(app)
+        .get("/api/articles")
+        .then((response) => {
+          const articles = response.body.articles;
+          expect(200);
+          expect(Array.isArray(articles)).toEqual(true);
+          expect(articles[0]).toEqual({
+            author: "icellusedkars",
+            title: "Eight pug gifs that remind me of mitch",
+            article_id: 3,
+            topic: "mitch",
+            created_at: "2020-11-03T09:12:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "2",
+          });
+        });
+    });
+
+  })
 });
-describe("GET/api", () => {
-  test("returns status 200 and an object", () => {
+xdescribe("GET/api/articles/:article_id/comments", () => {
+  test("returns status 200 and an ", () => {
     return request(app)
-      .get("/api")
+      .get("/api/articles/:article_id/comments")
       .then((response) => {
         const endPoints = response.body.endPoints;
         expect(200);
         expect(typeof endPoints).toEqual("object");
       });
   });
-  test("returns 200 and an array of objects with the objects containing correct keys", () => {
-    return request(app)
-      .get("/api/articles")
-      .then((response) => {
-        const articles = response.body.articles;
-        expect(200);
-        expect(Array.isArray(articles)).toEqual(true);
-        expect(articles[0]).toEqual({
-          author: "icellusedkars",
-          title: "Eight pug gifs that remind me of mitch",
-          article_id: 3,
-          topic: "mitch",
-          created_at: "2020-11-03T09:12:00.000Z",
-          votes: 0,
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          comment_count: "2",
-        });
-      });
-  });
-});
+})
