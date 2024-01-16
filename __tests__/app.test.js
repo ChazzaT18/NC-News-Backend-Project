@@ -23,7 +23,7 @@ describe("GET/api", () => {
         expect(typeof endPoints).toEqual("object");
       });
   });
-})
+});
 
 describe("GET/api/topics", () => {
   test("returns status 200 and an array", () => {
@@ -40,9 +40,10 @@ describe("GET/api/topics", () => {
       .get("/api/topics")
       .then((response) => {
         const topics = response.body.topic;
+        expect(topics.length > 0).toBe(true);
         topics.forEach((topic) => {
-          expect(topic.hasOwnProperty("slug"));
-          expect(topic.hasOwnProperty("description"));
+          expect(typeof topic.slug).toBe("string");
+          expect(typeof topic.description).toBe("string");
         });
         expect(200);
       });
@@ -128,7 +129,7 @@ describe("GET/api/articles/:article_id", () => {
         });
       });
   });
-  describe('GET/api/articles', () => {
+  describe("GET/api/articles", () => {
     test("returns 200 and an array of objects with the objects containing correct keys", () => {
       return request(app)
         .get("/api/articles")
@@ -136,30 +137,60 @@ describe("GET/api/articles/:article_id", () => {
           const articles = response.body.articles;
           expect(200);
           expect(Array.isArray(articles)).toEqual(true);
-          expect(articles[0]).toEqual({
-            author: "icellusedkars",
-            title: "Eight pug gifs that remind me of mitch",
-            article_id: 3,
-            topic: "mitch",
-            created_at: "2020-11-03T09:12:00.000Z",
-            votes: 0,
-            article_img_url:
-              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            comment_count: "2",
+          console.log(articles)
+          expect(articles.length > 0).toBe(true)
+          articles.forEach((article) => {
+            expect(typeof article.comment_count).toBe("number");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.article_img_url).toBe("string");
           });
         });
     });
-
-  })
-});
-xdescribe("GET/api/articles/:article_id/comments", () => {
-  test("returns status 200 and an ", () => {
+  });
+  test("Returned array is ordered by created_at and sorted by newest first", () => {
     return request(app)
-      .get("/api/articles/:article_id/comments")
+      .get("/api/articles")
       .then((response) => {
-        const endPoints = response.body.endPoints;
         expect(200);
-        expect(typeof endPoints).toEqual("object");
+        expect(response.body.articles).toBeSortedBy('created_at', {descending: true})
       });
   });
-})
+});
+describe("GET/api/articles/:article_id/comments", () => {
+  test("returns status 200 and an array", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .then((response) => {
+        expect(200);
+        expect(Array.isArray(response.body.comments)).toEqual(true);
+      });
+  });
+  test("returned objects has required keys and correct data types", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .then((response) => {
+        const comments = response.body.comments;
+        expect(comments.length > 0).toBe(true);
+        comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.article_id).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+        });
+      });
+    });
+    test("Returned array is ordered by created_at and sorted by newest first", () => {
+      return request(app)
+        .get("/api/articles/3/comments")
+        .then((response) => {
+          expect(200);
+          expect(response.body.comments).toBeSortedBy('created_at', {descending: true})
+        });
+    });
+});
