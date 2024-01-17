@@ -139,13 +139,16 @@ describe("GET/api/articles/:article_id", () => {
           expect(Array.isArray(articles)).toEqual(true);
           expect(articles.length > 0).toBe(true);
           articles.forEach((article) => {
-            expect(typeof article.comment_count).toBe("number");
-            expect(typeof article.votes).toBe("number");
-            expect(typeof article.article_id).toBe("number");
-            expect(typeof article.created_at).toBe("string");
-            expect(typeof article.author).toBe("string");
-            expect(typeof article.title).toBe("string");
-            expect(typeof article.article_img_url).toBe("string");
+            expect(article).toHaveProperty("comment_count", expect.any(Number));
+            expect(article).toHaveProperty("votes", expect.any(Number));
+            expect(article).toHaveProperty("article_id", expect.any(Number));
+            expect(article).toHaveProperty("created_at", expect.any(String));
+            expect(article).toHaveProperty("author", expect.any(String));
+            expect(article).toHaveProperty("title", expect.any(String));
+            expect(article).toHaveProperty(
+              "article_img_url",
+              expect.any(String)
+            );
           });
         });
     });
@@ -164,10 +167,18 @@ describe("GET/api/articles/:article_id", () => {
 describe("GET/api/articles/:article_id/comments", () => {
   test("returns status 200 and an array", () => {
     return request(app)
-      .get("/api/articles/3/comments")
+      .get("/api/articles/4/comments")
       .then((response) => {
         expect(200);
         expect(Array.isArray(response.body.comments)).toEqual(true);
+      });
+  });
+  test("Returns and empty array if there are no comments", () => {
+    return request(app)
+      .get("/api/articles/4/comments")
+      .then((response) => {
+        expect(200);
+        expect(response.body.comments).toEqual([]);
       });
   });
   test("returned objects has required keys and correct data types", () => {
@@ -175,14 +186,14 @@ describe("GET/api/articles/:article_id/comments", () => {
       .get("/api/articles/3/comments")
       .then((response) => {
         const comments = response.body.comments;
-        expect(comments.length > 0).toBe(true);
+        expect(comments.length).toBe(2);
         comments.forEach((comment) => {
-          expect(typeof comment.comment_id).toBe("number");
-          expect(typeof comment.votes).toBe("number");
-          expect(typeof comment.article_id).toBe("number");
-          expect(typeof comment.created_at).toBe("string");
-          expect(typeof comment.author).toBe("string");
-          expect(typeof comment.body).toBe("string");
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("article_id", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
         });
       });
   });
@@ -195,22 +206,148 @@ describe("GET/api/articles/:article_id/comments", () => {
           descending: true,
         });
       });
-    });
-    test("returns status 404 when id number is not in the database", () => {
-      return request(app)
-        .get("/api/articles/10090/comments")
-        .then((response) => {
-          expect(404);
-          console.log(response.body)
-          expect(response.body.msg).toEqual("Not found");
-        });
-    });
-    test("returns status 400 given an invalid article_id", () => {
-      return request(app)
-        .get("/api/articles/banana/comments")
-        .then((response) => {
-          expect(400);
-          expect(response.body.msg).toEqual("article_id must be a number");
-        });
-    });
+  });
+  test("returns status 404 when id number is not in the database", () => {
+    return request(app)
+      .get("/api/articles/10090/comments")
+      .then((response) => {
+        expect(404);
+        expect(response.body.msg).toEqual("Not found");
+      });
+  });
+  test("returns status 400 given an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/banana/comments")
+      .then((response) => {
+        expect(400);
+        expect(response.body.msg).toEqual("article_id must be a number");
+      });
+  });
+});
+describe("POST/api/articles/:article_id/comments", () => {
+  test("Returns statusCode 201 and responds with comment", () => {
+    const postCommentData = {
+      body: "You should try coding",
+      username: "rogersop",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(postCommentData)
+      .then((response) => {
+        const comment = response.body.comment;
+
+        expect(201);
+        expect(comment).toHaveProperty("comment_id", expect.any(Number));
+        expect(comment).toHaveProperty("votes", 0);
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+        expect(comment).toHaveProperty("author", "rogersop");
+        expect(comment).toHaveProperty("body", "You should try coding");
+        expect(comment).toHaveProperty("article_id", 1);
+      });
+  });
+  test("returns error 400 if post does not include username", () => {
+    const postCommentData = { body: "You should try coding" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(postCommentData)
+      .then((response) => {
+        expect(400);
+        expect(response.body.msg).toEqual("must have a username");
+      });
+  });
+  test("returns error 400 if post does not include body", () => {
+    const postCommentData = { username: "ChazzaT18" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(postCommentData)
+      .then((response) => {
+        expect(400);
+        expect(response.body.msg).toEqual("must have a body");
+      });
+  });
+  test("returns error 400 if given invalid article number", () => {
+    const postCommentData = { username: "ChazzaT18" };
+    return request(app)
+      .post("/api/articles/poo/comments")
+      .send(postCommentData)
+      .then((response) => {
+        expect(400);
+        expect(response.body.msg).toEqual("article_id must be a number");
+      });
+  });
+  test("returns error 404 if given an article id that is not on the database", () => {
+    const postCommentData = { username: "ChazzaT18", body: "Hello world" };
+    return request(app)
+      .post("/api/articles/10202/comments")
+      .send(postCommentData)
+      .then((response) => {
+        expect(400);
+        expect(response.body.msg).toEqual("Not found");
+      });
+  });
+});
+describe("POST/api/articles/:article_id", () => {
+  test("Returns statusCode 201 and responds with comment", () => {
+    const patchVotes = { inc_votes: 1 };
+
+    return request(app)
+      .patch("/api/articles/4")
+      .send(patchVotes)
+      .then((response) => {
+        console.log(response.body.article);
+        const article = response.body.article;
+
+        expect(201);
+        expect(article).toHaveProperty("votes", 1);
+        expect(article).toHaveProperty("article_id", 4);
+        expect(article).toHaveProperty(
+          "created_at",
+          "2020-05-06T01:14:00.000Z"
+        );
+        expect(article).toHaveProperty("topic", "mitch");
+        expect(article).toHaveProperty(
+          "body",
+          "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages"
+        );
+        expect(article).toHaveProperty("author", "rogersop");
+        expect(article).toHaveProperty("title", "Student SUES Mitch!");
+        expect(article).toHaveProperty("article_img_url", "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+      });
+  });
+  test("Returns statusCode 400 when article_id is not a number", () => {
+    const patchVotes = { inc_votes: 1 };
+
+    return request(app)
+      .patch("/api/articles/banana")
+      .send(patchVotes)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toEqual("article_id must be a number");
+      });
+  });
+
+  test("Returns statusCode 400 when inc_votes is not a number", () => {
+    const patchVotes = { inc_votes: "not_a_number" };
+
+    return request(app)
+      .patch("/api/articles/4")
+      .send(patchVotes)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toEqual("inc_votes must be a number");
+      });
+  });
+
+  test("Returns statusCode 404 when article is not found", () => {
+    const patchVotes = { inc_votes: 1 };
+
+    return request(app)
+      .patch("/api/articles/999")
+      .send(patchVotes)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toEqual("Not found");
+      });
+  });
 });

@@ -57,17 +57,94 @@ const fetchCommentsByArticleId = (articleId) => {
       msg: "article_id must be a number",
     });
   }
-  return db
-    .query(
-      "SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC",
-      [articleId]
-    )
-    .then((comments) => {
-      if (comments.rows.length === 0) {
-        return Promise.reject({ statusCode: 404, msg: "Not found" });
-      }
-      return comments.rows;
-    });
+
+  return fetchArticleById(articleId).then((article) => {
+    if (article.length === 0) {
+      return Promise.reject({ statusCode: 404, msg: "Not found" });
+    }
+
+    return db
+      .query(
+        "SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC",
+        [articleId]
+      )
+      .then((comments) => {
+        return comments.rows;
+      });
+  });
 };
 
-module.exports = { fetchArticleById, fetchArticles, fetchCommentsByArticleId };
+const postComment = (articleId, username, body) => {
+  if (isNaN(articleId)) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "article_id must be a number",
+    });
+  } else if (!username) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "must have a username",
+    });
+  } else if (!body) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "must have a body",
+    });
+  }
+
+  return fetchArticleById(articleId).then((article) => {
+    if (article.length === 0) {
+      return Promise.reject({ statusCode: 404, msg: "Not found" });
+    }
+
+    return db
+      .query(
+        "INSERT INTO comments (article_id, author, body, votes, created_at) VALUES ($1, $2, $3, 0, $4) RETURNING *;",
+        [articleId, username, body, new Date().toUTCString()]
+      )
+      .then((data) => {
+        const comment = data.rows[0];
+        return comment;
+      });
+  });
+};
+
+const patchVotesInArticle = (articleId, votes) => {
+  if (isNaN(articleId)) {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "article_id must be a number",
+    });
+  } else if (typeof votes !== "number") {
+    return Promise.reject({
+      statusCode: 400,
+      msg: "inc_votes must be a number",
+    });
+  }
+
+  return fetchArticleById(articleId).then((article) => {
+    if (!article) {
+      return Promise.reject({ statusCode: 404, msg: "Article not found" });
+    }
+
+    const updatedVotes = article.article.votes + votes;
+
+    return db
+      .query(
+        "UPDATE articles SET votes = $1 WHERE article_id = $2 RETURNING *;",
+        [updatedVotes, articleId]
+      )
+      .then((data) => {
+        const article = data.rows[0];
+        return article ;
+      });
+  });
+};
+
+module.exports = {
+  fetchArticleById,
+  fetchArticles,
+  fetchCommentsByArticleId,
+  postComment,
+  patchVotesInArticle,
+};
