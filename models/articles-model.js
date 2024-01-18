@@ -43,13 +43,13 @@ const fetchArticleById = (articleId) => {
       if (article.length === 0) {
         return Promise.reject({ statusCode: 404, msg: "Article not found" });
       }
-      return article[0]
+      return article[0];
     });
 };
 
 const fetchArticles = (topic) => {
-  if (topic !== undefined && typeof topic !== 'string') {
-    return Promise.reject({ statusCode: 400, msg: 'Bad request' });
+  if (topic !== undefined && typeof topic !== "string") {
+    return Promise.reject({ statusCode: 400, msg: "Bad request" });
   }
 
   return db
@@ -83,8 +83,11 @@ const fetchArticles = (topic) => {
         const articlesByTopic = articles.rows.filter((article) => {
           return article.topic === topic;
         });
-        if (articlesByTopic.length === 0){
-          return Promise.reject({ statusCode: 404, msg: "No articles with given topic"});
+        if (articlesByTopic.length === 0) {
+          return Promise.reject({
+            statusCode: 404,
+            msg: "No articles with given topic",
+          });
         }
         return articlesByTopic;
       }
@@ -168,7 +171,7 @@ const patchVotesInArticle = (articleId, votes) => {
     if (!article) {
       return Promise.reject({ statusCode: 404, msg: "Article not found" });
     }
-    console.log(article)
+    console.log(article);
     const updatedVotes = article.votes + votes;
 
     return db
