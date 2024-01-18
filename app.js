@@ -7,11 +7,14 @@ const {
   getArticles,
   getCommentsByArticleId,
   postCommentByArticleId,
-  patchArticleVotesById
+  patchArticleVotesById,
 } = require("./controllers/articles-controller");
 const { getEndPoints } = require("./controllers/endpoints-controller");
+const { deleteCommentByCommentId } = require('./controllers/comments-controller')
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+
+app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
 
 app.get("/api/topics", getTopics);
 

@@ -97,7 +97,7 @@ describe("GET/api/articles/:article_id", () => {
       .get("/api/articles/10090")
       .then((response) => {
         expect(404);
-        expect(response.body.msg).toBe("Not found");
+        expect(response.body.msg).toBe("Article not found");
       });
   });
   test("returns status 400 given an invalid article_id", () => {
@@ -212,7 +212,7 @@ describe("GET/api/articles/:article_id/comments", () => {
       .get("/api/articles/10090/comments")
       .then((response) => {
         expect(404);
-        expect(response.body.msg).toEqual("Not found");
+        expect(response.body.msg).toEqual("Article not found");
       });
   });
   test("returns status 400 given an invalid article_id", () => {
@@ -282,8 +282,8 @@ describe("POST/api/articles/:article_id/comments", () => {
       .post("/api/articles/10202/comments")
       .send(postCommentData)
       .then((response) => {
-        expect(400);
-        expect(response.body.msg).toEqual("Not found");
+        expect(404);
+        expect(response.body.msg).toEqual("Article not found");
       });
   });
 });
@@ -295,7 +295,6 @@ describe("POST/api/articles/:article_id", () => {
       .patch("/api/articles/4")
       .send(patchVotes)
       .then((response) => {
-        console.log(response.body.article);
         const article = response.body.article;
 
         expect(201);
@@ -312,7 +311,10 @@ describe("POST/api/articles/:article_id", () => {
         );
         expect(article).toHaveProperty("author", "rogersop");
         expect(article).toHaveProperty("title", "Student SUES Mitch!");
-        expect(article).toHaveProperty("article_img_url", "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+        expect(article).toHaveProperty(
+          "article_img_url",
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
       });
   });
   test("Returns statusCode 400 when article_id is not a number", () => {
@@ -347,7 +349,42 @@ describe("POST/api/articles/:article_id", () => {
       .send(patchVotes)
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toEqual("Not found");
+        expect(response.body.msg).toEqual("Article not found");
+      });
+  });
+});
+describe("DELETE/api/comments/:comments_id", () => {
+  test("Returns status 204 and no content", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(() => {});
+  });
+  test("Comment is actually deleted from the database", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(() => {
+        return db.query("SELECT * FROM comments WHERE comment_id = 1;");
+      })
+      .then((result) => {
+        expect(result.rows.length).toBe(0);
+      });
+  });
+  test("Returns status 404 and correct error message when comment not found on database", () => {
+    return request(app)
+      .delete("/api/comments/10909")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toEqual("Comment not found");
+      });
+  });
+  test("Returns status 400 and when comment id is not a number", () => {
+    return request(app)
+      .delete("/api/comments/northcoders")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toEqual("comment_id must be a number");
       });
   });
 });

@@ -12,7 +12,7 @@ const fetchArticleById = (articleId) => {
     .then((data) => {
       const article = data.rows;
       if (article.length === 0) {
-        return Promise.reject({ statusCode: 404, msg: "Not found" });
+        return Promise.reject({ statusCode: 404, msg: "Article not found" });
       }
       return { article: article[0] };
     });
@@ -60,7 +60,7 @@ const fetchCommentsByArticleId = (articleId) => {
 
   return fetchArticleById(articleId).then((article) => {
     if (article.length === 0) {
-      return Promise.reject({ statusCode: 404, msg: "Not found" });
+      return Promise.reject({ statusCode: 404, msg: "Article not found" });
     }
 
     return db
@@ -136,7 +136,7 @@ const patchVotesInArticle = (articleId, votes) => {
       )
       .then((data) => {
         const article = data.rows[0];
-        return article ;
+        return article;
       });
   });
 };
