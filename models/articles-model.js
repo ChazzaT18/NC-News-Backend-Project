@@ -171,7 +171,7 @@ const patchVotesInArticle = (articleId, votes) => {
     if (!article) {
       return Promise.reject({ statusCode: 404, msg: "Article not found" });
     }
-    console.log(article);
+    
     const updatedVotes = article.votes + votes;
 
     return db
