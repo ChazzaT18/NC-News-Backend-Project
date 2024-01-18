@@ -47,13 +47,30 @@ const fetchArticleById = (articleId) => {
     });
 };
 
-const fetchArticles = (topic) => {
+const fetchArticles = (sort_by = "DESC", order_by = "created_at", topic) => {
   if (topic !== undefined && typeof topic !== "string") {
     return Promise.reject({ statusCode: 400, msg: "Bad request" });
   }
-
+  
+  const validSortByQuery = ["DESC", "ASC"];
+  const validOrderByQuery = [
+    "author",
+    "title",
+    "article_id",
+    "topic",
+    "created_at",
+    "votes",
+  ];
+  
+  if (sort_by && !validSortByQuery.includes(sort_by)) {
+    return Promise.reject({ statusCode: 400, msg: "Invalid sort by query" });
+  }
+  if (order_by && !validOrderByQuery.includes(order_by)) {
+    return Promise.reject({ statusCode: 400, msg: "Invalid order by query" });
+  }
+  
   return db
-    .query(
+  .query(
       `SELECT
         articles.author,
         articles.title,
@@ -76,7 +93,7 @@ const fetchArticles = (topic) => {
         articles.votes,
         articles.article_img_url
       ORDER BY
-        articles.created_at DESC`
+      ${order_by} ${sort_by}`
     )
     .then((articles) => {
       if (topic) {
@@ -171,7 +188,7 @@ const patchVotesInArticle = (articleId, votes) => {
     if (!article) {
       return Promise.reject({ statusCode: 404, msg: "Article not found" });
     }
-    
+
     const updatedVotes = article.votes + votes;
 
     return db

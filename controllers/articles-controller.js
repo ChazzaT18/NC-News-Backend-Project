@@ -1,3 +1,4 @@
+const articles = require("../db/data/test-data/articles");
 const {
   fetchArticleById,
   fetchArticles,
@@ -18,8 +19,8 @@ const getArticleById = (request, response, next) => {
 };
 
 const getArticles = (request, response, next) => {
-  const { topic } = request.query;
-  fetchArticles(topic)
+  const { sort_by, order_by ,topic } = request.query;
+  fetchArticles(sort_by, order_by, topic)
     .then((articles) => {
       response.status(200).send({ articles });
     })
@@ -63,6 +64,7 @@ const patchArticleVotesById = (request, response, next) => {
       next(err);
     });
 };
+
 module.exports = {
   getArticleById,
   getArticles,

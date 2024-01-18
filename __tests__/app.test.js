@@ -178,6 +178,36 @@ test("Returned array is ordered by created_at and sorted by newest first", () =>
       });
     });
 });
+test("Returned array is ordered by created_at and sorted by older first", () => {
+  return request(app)
+    .get("/api/articles?sort_by=ASC")
+    .then((response) => {
+      expect(200);
+      expect(response.body.articles).toBeSortedBy("created_at", {
+        descending: false,
+      });
+    });
+});
+test("Returned array is ordered by author", () => {
+  return request(app)
+    .get("/api/articles?order_by=author")
+    .then((response) => {
+      expect(200);
+      expect(response.body.articles).toBeSortedBy("author", {
+        descending: true,
+      });
+    });
+});
+test("Returned array is ordered by author and ascending order", () => {
+  return request(app)
+    .get("/api/articles?order_by=author&sort_by=ASC")
+    .then((response) => {
+      expect(200);
+      expect(response.body.articles).toBeSortedBy("author", {
+        descending: false,
+      });
+    });
+});
 test("Filters articles by topics query", () => {
   return request(app)
     .get("/api/articles?topic=cats")
