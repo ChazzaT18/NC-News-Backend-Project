@@ -163,7 +163,24 @@ describe("GET/api/articles/:article_id", () => {
         });
       });
   });
+  test('Filters articles by topics query', () => {
+    return request(app)
+    .get('/api/articles?topic=cats')
+    .expect(200)
+    .then((response) => {
+      const articles = response.body.articles;
+      expect(articles).toHaveLength(1)
+    })
+  })
 });
+test('Returns 404 when given a no existent topic', () => {
+  return request(app)
+  .get('/api/articles?topic=dogs')
+  .expect(404)
+  .then((response) => {
+    expect(response.body.msg).toBe("No articles with given topic");
+  })
+})
 describe("GET/api/articles/:article_id/comments", () => {
   test("returns status 200 and an array", () => {
     return request(app)
@@ -394,7 +411,6 @@ describe('GET/api/users', () => {
     .get('/api/users')
     .expect(200)
     .then((response) => {
-      console.log(response.body.users)
       expect(Array.isArray(response.body.users)).toBe(true);
     })
   })
