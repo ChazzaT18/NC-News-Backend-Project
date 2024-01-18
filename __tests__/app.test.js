@@ -268,6 +268,7 @@ describe("POST/api/articles/:article_id/comments", () => {
       .send(postCommentData)
       .then((response) => {
         const comment = response.body.comment;
+        console.log(comment)
         
         expect(201);
         expect(comment).toHaveProperty("comment_id", expect.any(Number));
