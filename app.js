@@ -6,6 +6,8 @@ app.use(express.json());
 
 const { getTopics } = require("./controllers/topics-controller");
 
+const { getUsers } = require('./controllers/users-controller')
+
 const {
   getArticleById,
   getArticles,
@@ -37,6 +39,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.get("/api", getEndPoints);
 
 app.get("/api/articles", getArticles);
+
+app.get('/api/users', getUsers)
 
 app.use((err, req, res, next) => {
   if (err.statusCode) {

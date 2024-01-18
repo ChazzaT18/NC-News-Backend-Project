@@ -388,3 +388,27 @@ describe("DELETE/api/comments/:comments_id", () => {
       });
   });
 });
+describe('GET/api/users', () => {
+  test('Returns status 200 and an array', () => {
+    return request(app)
+    .get('/api/users')
+    .expect(200)
+    .then((response) => {
+      console.log(response.body.users)
+      expect(Array.isArray(response.body.users)).toBe(true);
+    })
+  })
+  test('Returns status 200 and an array with correct properties and value data types', () => {
+    return request(app)
+    .get('/api/users')
+    .expect(200)
+    .then((response) => {
+      expect(response.body.users.length).toBe(4);
+      response.body.users.forEach((user) => {
+        expect(user).toHaveProperty('username', expect.any(String))
+        expect(user).toHaveProperty('name', expect.any(String))
+        expect(user).toHaveProperty('avatar_url', expect.any(String))
+      })
+    })
+  })
+})
