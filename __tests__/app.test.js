@@ -77,18 +77,15 @@ describe("GET/api/articles/:article_id", () => {
         const article = response.body.article;
         expect(typeof article).toEqual("object");
         expect(200);
-        expect(article).toEqual({
-          article: {
-            article_id: 1,
-            title: "Living in the shadow of a great man",
-            topic: "mitch",
-            author: "butter_bridge",
-            body: "I find this existence challenging",
-            created_at: "2020-07-09T20:11:00.000Z",
-            votes: 100,
-            article_img_url:
-              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          },
+        expect(article).toHaveProperty('article_id', 1)
+        expect(article).toHaveProperty('title', 'Living in the shadow of a great man')
+        expect(article).toHaveProperty('topic', 'mitch')
+        expect(article).toHaveProperty('author', 'butter_bridge')
+        expect(article).toHaveProperty('body', 'I find this existence challenging')
+        expect(article).toHaveProperty('created_at', '2020-07-09T20:11:00.000Z')
+        expect(article).toHaveProperty('votes', 100)
+        expect(article).toHaveProperty('article_img_url', 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700')
+
         });
       });
   });
@@ -114,21 +111,26 @@ describe("GET/api/articles/:article_id", () => {
       .then((response) => {
         const article = response.body.article;
         expect(200);
-        expect(article).toEqual({
-          article: {
-            article_id: 4,
-            title: "Student SUES Mitch!",
-            topic: "mitch",
-            author: "rogersop",
-            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-            created_at: "2020-05-06T01:14:00.000Z",
-            article_img_url:
-              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            votes: 0,
-          },
+        expect(article).toHaveProperty('article_id', 4)
+        expect(article).toHaveProperty('title', 'Student SUES Mitch!')
+        expect(article).toHaveProperty('topic', "mitch",)
+        expect(article).toHaveProperty('author', "rogersop",)
+        expect(article).toHaveProperty('body', "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",)
+        expect(article).toHaveProperty('created_at', "2020-05-06T01:14:00.000Z")
+        expect(article).toHaveProperty('article_img_url', "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
+        expect(article).toHaveProperty('votes', 0)  
+
         });
       });
-  });
+    test('returns status 200 and an article object with comment_count', () => {
+      return request(app)
+        .get(`/api/articles/3`)
+        .expect(200)
+        .then((response) => {
+          const article = response.body.article;
+          expect(article).toHaveProperty('comment_count', 2);
+        });
+    });
   describe("GET/api/articles", () => {
     test("returns 200 and an array of objects with the objects containing correct keys", () => {
       return request(app)
@@ -172,7 +174,7 @@ describe("GET/api/articles/:article_id", () => {
       expect(articles).toHaveLength(1)
     })
   })
-});
+// });
 test('Returns 404 when given a no existent topic', () => {
   return request(app)
   .get('/api/articles?topic=dogs')
@@ -253,6 +255,7 @@ describe("POST/api/articles/:article_id/comments", () => {
       .send(postCommentData)
       .then((response) => {
         const comment = response.body.comment;
+        console.log(comment)
 
         expect(201);
         expect(comment).toHaveProperty("comment_id", expect.any(Number));
