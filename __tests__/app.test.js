@@ -77,110 +77,125 @@ describe("GET/api/articles/:article_id", () => {
         const article = response.body.article;
         expect(typeof article).toEqual("object");
         expect(200);
-        expect(article).toEqual({
-          article: {
-            article_id: 1,
-            title: "Living in the shadow of a great man",
-            topic: "mitch",
-            author: "butter_bridge",
-            body: "I find this existence challenging",
-            created_at: "2020-07-09T20:11:00.000Z",
-            votes: 100,
-            article_img_url:
-              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          },
-        });
+        expect(article).toHaveProperty("article_id", 1);
+        expect(article).toHaveProperty(
+          "title",
+          "Living in the shadow of a great man"
+        );
+        expect(article).toHaveProperty("topic", "mitch");
+        expect(article).toHaveProperty("author", "butter_bridge");
+        expect(article).toHaveProperty(
+          "body",
+          "I find this existence challenging"
+        );
+        expect(article).toHaveProperty(
+          "created_at",
+          "2020-07-09T20:11:00.000Z"
+        );
+        expect(article).toHaveProperty("votes", 100);
+        expect(article).toHaveProperty(
+          "article_img_url",
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
       });
   });
-  test("returns status 404 when id number is not in the database", () => {
-    return request(app)
-      .get("/api/articles/10090")
-      .then((response) => {
-        expect(404);
-        expect(response.body.msg).toBe("Article not found");
-      });
-  });
-  test("returns status 400 given an invalid article_id", () => {
-    return request(app)
-      .get("/api/articles/banana")
-      .then((response) => {
-        expect(400);
-        expect(response.body.msg).toBe("article_id must be a number");
-      });
-  });
-  test("returns status 200 and an article object with correct properties", () => {
-    return request(app)
-      .get("/api/articles/4")
-      .then((response) => {
-        const article = response.body.article;
-        expect(200);
-        expect(article).toEqual({
-          article: {
-            article_id: 4,
-            title: "Student SUES Mitch!",
-            topic: "mitch",
-            author: "rogersop",
-            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-            created_at: "2020-05-06T01:14:00.000Z",
-            article_img_url:
-              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            votes: 0,
-          },
-        });
-      });
-  });
-  describe("GET/api/articles", () => {
-    test("returns 200 and an array of objects with the objects containing correct keys", () => {
-      return request(app)
-        .get("/api/articles")
-        .then((response) => {
-          const articles = response.body.articles;
-          expect(200);
-          expect(Array.isArray(articles)).toEqual(true);
-          expect(articles.length > 0).toBe(true);
-          articles.forEach((article) => {
-            expect(article).toHaveProperty("comment_count", expect.any(Number));
-            expect(article).toHaveProperty("votes", expect.any(Number));
-            expect(article).toHaveProperty("article_id", expect.any(Number));
-            expect(article).toHaveProperty("created_at", expect.any(String));
-            expect(article).toHaveProperty("author", expect.any(String));
-            expect(article).toHaveProperty("title", expect.any(String));
-            expect(article).toHaveProperty(
-              "article_img_url",
-              expect.any(String)
-            );
-          });
-        });
+});
+test("returns status 404 when id number is not in the database", () => {
+  return request(app)
+    .get("/api/articles/10090")
+    .then((response) => {
+      expect(404);
+      expect(response.body.msg).toBe("Article not found");
     });
-  });
-  test("Returned array is ordered by created_at and sorted by newest first", () => {
+});
+test("returns status 400 given an invalid article_id", () => {
+  return request(app)
+    .get("/api/articles/banana")
+    .then((response) => {
+      expect(400);
+      expect(response.body.msg).toBe("article_id must be a number");
+    });
+});
+test("returns status 200 and an article object with correct properties", () => {
+  return request(app)
+    .get("/api/articles/4")
+    .then((response) => {
+      const article = response.body.article;
+      expect(200);
+      expect(article).toHaveProperty("article_id", 4);
+      expect(article).toHaveProperty("title", "Student SUES Mitch!");
+      expect(article).toHaveProperty("topic", "mitch");
+      expect(article).toHaveProperty("author", "rogersop");
+      expect(article).toHaveProperty(
+        "body",
+        "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages"
+      );
+      expect(article).toHaveProperty("created_at", "2020-05-06T01:14:00.000Z");
+      expect(article).toHaveProperty(
+        "article_img_url",
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      );
+      expect(article).toHaveProperty("votes", 0);
+    });
+});
+test("returns status 200 and an article object with comment_count", () => {
+  return request(app)
+    .get(`/api/articles/3`)
+    .expect(200)
+    .then((response) => {
+      const article = response.body.article;
+      expect(article).toHaveProperty("comment_count", 2);
+    });
+});
+describe("GET/api/articles", () => {
+  test("returns 200 and an array of objects with the objects containing correct keys", () => {
     return request(app)
       .get("/api/articles")
       .then((response) => {
+        const articles = response.body.articles;
         expect(200);
-        expect(response.body.articles).toBeSortedBy("created_at", {
-          descending: true,
+        expect(Array.isArray(articles)).toEqual(true);
+        expect(articles.length > 0).toBe(true);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("comment_count", expect.any(Number));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
         });
       });
   });
-  test('Filters articles by topics query', () => {
-    return request(app)
-    .get('/api/articles?topic=cats')
+});
+test("Returned array is ordered by created_at and sorted by newest first", () => {
+  return request(app)
+    .get("/api/articles")
+    .then((response) => {
+      expect(200);
+      expect(response.body.articles).toBeSortedBy("created_at", {
+        descending: true,
+      });
+    });
+});
+test("Filters articles by topics query", () => {
+  return request(app)
+    .get("/api/articles?topic=cats")
     .expect(200)
     .then((response) => {
       const articles = response.body.articles;
-      expect(articles).toHaveLength(1)
-    })
-  })
+      expect(articles).toHaveLength(1);
+    });
 });
-test('Returns 404 when given a no existent topic', () => {
+// });
+test("Returns 404 when given a no existent topic", () => {
   return request(app)
-  .get('/api/articles?topic=dogs')
-  .expect(404)
-  .then((response) => {
-    expect(response.body.msg).toBe("No articles with given topic");
-  })
-})
+    .get("/api/articles?topic=dogs")
+    .expect(404)
+    .then((response) => {
+      expect(response.body.msg).toBe("No articles with given topic");
+    });
+});
 describe("GET/api/articles/:article_id/comments", () => {
   test("returns status 200 and an array", () => {
     return request(app)
@@ -253,7 +268,7 @@ describe("POST/api/articles/:article_id/comments", () => {
       .send(postCommentData)
       .then((response) => {
         const comment = response.body.comment;
-
+        
         expect(201);
         expect(comment).toHaveProperty("comment_id", expect.any(Number));
         expect(comment).toHaveProperty("votes", 0);
@@ -405,26 +420,26 @@ describe("DELETE/api/comments/:comments_id", () => {
       });
   });
 });
-describe('GET/api/users', () => {
-  test('Returns status 200 and an array', () => {
+describe("GET/api/users", () => {
+  test("Returns status 200 and an array", () => {
     return request(app)
-    .get('/api/users')
-    .expect(200)
-    .then((response) => {
-      expect(Array.isArray(response.body.users)).toBe(true);
-    })
-  })
-  test('Returns status 200 and an array with correct properties and value data types', () => {
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        expect(Array.isArray(response.body.users)).toBe(true);
+      });
+  });
+  test("Returns status 200 and an array with correct properties and value data types", () => {
     return request(app)
-    .get('/api/users')
-    .expect(200)
-    .then((response) => {
-      expect(response.body.users.length).toBe(4);
-      response.body.users.forEach((user) => {
-        expect(user).toHaveProperty('username', expect.any(String))
-        expect(user).toHaveProperty('name', expect.any(String))
-        expect(user).toHaveProperty('avatar_url', expect.any(String))
-      })
-    })
-  })
-})
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.users.length).toBe(4);
+        response.body.users.forEach((user) => {
+          expect(user).toHaveProperty("username", expect.any(String));
+          expect(user).toHaveProperty("name", expect.any(String));
+          expect(user).toHaveProperty("avatar_url", expect.any(String));
+        });
+      });
+  });
+});

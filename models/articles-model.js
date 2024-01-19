@@ -7,20 +7,49 @@ const fetchArticleById = (articleId) => {
       msg: "article_id must be a number",
     });
   }
+
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1;`, [articleId])
+    .query(
+      `SELECT
+        articles.author,
+        articles.body,
+        articles.title,
+        articles.article_id,
+        articles.topic,
+        articles.created_at,
+        articles.votes,
+        articles.article_img_url,
+        CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count
+      FROM
+        articles
+      LEFT JOIN
+        comments ON articles.article_id = comments.article_id
+      WHERE articles.article_id = $1
+      GROUP BY
+        articles.author,
+        articles.title,
+        articles.body,
+        articles.article_id,
+        articles.topic,
+        articles.created_at,
+        articles.votes,
+        articles.article_img_url
+      ORDER BY
+        articles.created_at DESC`,
+      [articleId]
+    )
     .then((data) => {
       const article = data.rows;
       if (article.length === 0) {
         return Promise.reject({ statusCode: 404, msg: "Article not found" });
       }
-      return { article: article[0] };
+      return article[0];
     });
 };
 
 const fetchArticles = (topic) => {
-  if (topic !== undefined && typeof topic !== 'string') {
-    return Promise.reject({ statusCode: 400, msg: 'Bad request' });
+  if (topic !== undefined && typeof topic !== "string") {
+    return Promise.reject({ statusCode: 400, msg: "Bad request" });
   }
 
   return db
@@ -47,15 +76,18 @@ const fetchArticles = (topic) => {
         articles.votes,
         articles.article_img_url
       ORDER BY
-        articles.created_at DESC`,
+        articles.created_at DESC`
     )
     .then((articles) => {
       if (topic) {
         const articlesByTopic = articles.rows.filter((article) => {
           return article.topic === topic;
         });
-        if (articlesByTopic.length === 0){
-          return Promise.reject({ statusCode: 404, msg: "No articles with given topic"});
+        if (articlesByTopic.length === 0) {
+          return Promise.reject({
+            statusCode: 404,
+            msg: "No articles with given topic",
+          });
         }
         return articlesByTopic;
       }
@@ -139,8 +171,8 @@ const patchVotesInArticle = (articleId, votes) => {
     if (!article) {
       return Promise.reject({ statusCode: 404, msg: "Article not found" });
     }
-
-    const updatedVotes = article.article.votes + votes;
+    
+    const updatedVotes = article.votes + votes;
 
     return db
       .query(
