@@ -355,7 +355,7 @@ describe("POST/api/articles/:article_id", () => {
     const patchVotes = { inc_votes: 1 };
 
     return request(app)
-      .patch("/api/articles/4")
+      .patch("/api/articles/4", patchVotes)
       .send(patchVotes)
       .then((response) => {
         const article = response.body.article;
