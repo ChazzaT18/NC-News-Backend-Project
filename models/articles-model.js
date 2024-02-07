@@ -60,6 +60,7 @@ const fetchArticles = (sort_by = "DESC", order_by = "created_at", topic) => {
     "topic",
     "created_at",
     "votes",
+    "comment_count",
   ];
   
   if (sort_by && !validSortByQuery.includes(sort_by)) {
